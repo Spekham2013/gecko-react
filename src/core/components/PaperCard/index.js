@@ -8,7 +8,6 @@ const PaperCard = ({ paper, onClick, selected, actions, rightFloat }) => (
     onClick={onClick}
   >
     <div className={styles['paper-title']}>
-      <div>{`Paper ID ${paper.ID}`}</div>
       {paper.title || paper.doi || paper.unstructured}
       {paper.doi && (
         <a

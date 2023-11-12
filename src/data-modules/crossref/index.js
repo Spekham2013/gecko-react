@@ -4,13 +4,10 @@ import { addDataModule } from 'core/module-loader';
 import doiRegex from 'doi-regex';
 
 export const Crossref = () => {
-  console.log('Running crossref');
   const { Papers, updatePapers } = useContext(Store);
   const [requests, setState] = useState({});
   let doiFilter = doiRegex({ exact: true });
   let toQuery = Object.values(Papers).filter(p => doiFilter.test(p.doi) && !requests[p.doi]);
-  console.log('toQuery', toQuery);
-  console.log('object.values', Object.values(Papers));
   if (toQuery.length) {
     const newRequests = toQuery.reduce((curr, next) => ({ ...curr, [next.doi]: 'pending' }), {});
     setState({ ...requests, ...newRequests });
@@ -18,7 +15,6 @@ export const Crossref = () => {
       .then(resp => resp.map(parsePaper))
       .then(papers => updatePapers(papers));
   }
-  console.log('store', Store);
   return null;
 };
 
@@ -26,7 +22,6 @@ export function getMetadata(papers) {
   //split into groups of 50
   let chunks = chunkArray(papers, 50);
   let results = chunks.map(singleCrossRefRequest);
-  console.log('chunks', chunks);
   return Promise.all(results)
     .then(res => {
       return res.flat();
@@ -40,7 +35,6 @@ export function getMetadata(papers) {
 export function singleCrossRefRequest(papers) {
   let query = papers.map(p => `doi:${p.doi}`).join();
   let base = 'https://api.crossref.org/works?rows=1000&filter=';
-  console.log(base + query);
   return fetch(base + query)
     .then(resp => resp.json())
     .then(json => {
@@ -60,18 +54,6 @@ export function crossrefSearch(input) {
 
 export function parsePaper(response) {
   let date = response['published-print'] ? response['published-print'] : response['created'];
-  console.log({
-    doi: response.DOI,
-    title: response.title ? response.title[0].replace(/<\/?[^>]+(>|$)/g, '') : null,
-    author: response.author ? response.author[0].family : '',
-    month: date['date-parts'][0][1],
-    year: date['date-parts'][0][0],
-    timestamp: new Date(date['date-time']),
-    journal: response['container-title'] ? response['container-title'][0] : '',
-    citationCount: response['is-referenced-by-count'],
-    references: response['reference'] ? response['reference'].map(parseReference) : false,
-    crossref: true
-  });
 
   return {
     doi: response.DOI,
