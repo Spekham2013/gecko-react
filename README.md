@@ -20,7 +20,7 @@ The tool allows the user to view these highly connected papers either in a table
 
 [citationgecko.com](http://citationgecko.com)
 
-## Running Citation Gecko locally
+## Running Citation Gecko locally - Under construction
 
 1. Clone the git repo:
    `git clone https://github.com/CitationGecko/gecko-react`
@@ -29,10 +29,21 @@ The tool allows the user to view these highly connected papers either in a table
 4. Open a terminal and navigate to the repository folder.
 5. Run `yarn` from the command line to install all the package dependencies.
 6. Run `yarn run build` from the command line to build the app.
-7. Run `yarn run start` to launch the server.
-8. The application will be served to http://localhost:8000
+7. (Optional) Create a credentials.yml file in the folder .cache (see below)
+8. Run `yarn run start-local` to launch the server.
+9. The application will be served to http://localhost:8000
 
-## Instructions for use
+### Local credentials file
+
+To keep your logins active, you can create a local credentials file called
+`credentials.yml`. This file currently has the following options:
+``` credentials.yml
+zotero_api_key: 'YOUR_ZOTERO_API_KEY'
+```
+
+Zotero API keys can be generated at https://www.zotero.org/settings/keys
+
+## Instructions for use (online)
 
 1. Go to [citationgecko.com](http://citationgecko.com) or [localhost:8000](http://localhost:8000) if you're running application locally
 2. Add some seed papers by clicking 'Add more seeds' button in the left-hand panel.
