@@ -10,6 +10,10 @@ addImportModule({
 
 export function authenticate() {
   const apiKey = cookies.get('gecko_zotero_key');
+  console.log('apiKey', apiKey);
+  if (!apiKey) {
+    throw new Error('No Zotero API key found.');
+  }
   let url = `/services/zotero/login/?key=${apiKey}`;
   return fetch(url).then(resp => resp.json());
 }

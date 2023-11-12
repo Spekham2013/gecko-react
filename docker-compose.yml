@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+
+  gecko:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    healthcheck:
+      test: ["CMD", "curl", "-f", "localhost:8000"]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    tty: true
+    entrypoint: npm run start-local
+    restart: on-failure
+    ports:
+      - 8000:8000
+    environment:
+      - SESSION_SECRET=123

@@ -66,11 +66,12 @@ export const Timeline = ({ data: { Papers, Edges }, onSelect, selected }) => {
   const years = Object.keys(papersByYear)
     .sort()
     .reverse();
+  console.log('Timeline years', years);
   const maxHeight = Y_OFFSET + Y_GAP * (years.length + 2);
   const maxWidth = 10000;
 
   const nodes = getNodes(Object.values(Papers));
-  const edges = getConnections(selected[0], Edges);
+  const edges = getConnections(selected[0], Edges, Object.values(Papers));
 
   const isHighlighted = node =>
     !edges.length
@@ -98,17 +99,29 @@ export const Timeline = ({ data: { Papers, Edges }, onSelect, selected }) => {
   );
 };
 
-function getConnections(id, edges) {
-  return edges.filter(e => e.source === id || e.target === id);
+function getConnections(id, edges, papers) {
+  const papersWithYear = papers.filter(p => p.year);
+  return edges.filter(e => {
+    // TODO this is a quadratic lookup - must fix
+    const idHasYear = papersWithYear.filter(p => p.ID === id).length;
+
+    // Exclude edges whose source or target doesn't have a year
+    // TODO this should not be done here but further up the chain
+    if (idHasYear) {
+      return e.source === id || e.target === id;
+    }
+    return false;
+  });
 }
 
 function getConnectingPath(edge, nodes) {
+  console.log('nodes', nodes);
   const startPoint = [nodes[edge.source].x, nodes[edge.source].y];
   const endPoint = [nodes[edge.target].x, nodes[edge.target].y];
   const controlPoint1 = [nodes[edge.source].x, nodes[edge.source].y + Y_GAP / 2];
   const controlPoint4 = [nodes[edge.target].x, nodes[edge.target].y + Y_GAP / 2];
 
-  if (nodes[edge.source].y == nodes[edge.target].y) {
+  if (nodes[edge.source].y === nodes[edge.target].y) {
     return `M ${startPoint} L ${controlPoint1} L${controlPoint4} L ${endPoint}`;
   }
 
@@ -127,8 +140,11 @@ function getConnectingPath(edge, nodes) {
 function getNodes(papers) {
   let nodes = {};
   // Sort by year
-  const sortedPapers = papers.sort((a, b) => b.year - a.year);
-  let seeds = papers.filter(p => p.seed);
+  //const sortedPapers = papers.sort((a, b) => b.year - a.year);
+  const papersWithYear = papers.filter(p => p.year);
+  const sortedPapers = papersWithYear.sort((a, b) => parseInt(b.year, 10) - parseInt(a.year, 10));
+  console.log('sortedPapers', sortedPapers);
+  let seeds = papersWithYear.filter(p => p.seed);
   //Initialise
   let [lastX, lastY, lastR, lastYear] = [X_OFFSET, Y_OFFSET - Y_GAP, 0, 3000];
   // Loop

@@ -132,7 +132,10 @@ export default class ForceGraph extends Component {
     this.simulation.force('collide').initialize(this.simulation.nodes());
 
     if (newNodes.length) {
-      this.simulation.alpha(1).restart();
+      this.simulation
+        .alpha(1)
+        .restart()
+        .tick(1000);
     }
 
     return false;
@@ -177,7 +180,7 @@ function highlightNode(id, graph) {
 }
 
 function dragstarted(d, simulation) {
-  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  //if (!d3.event.active) simulation.alphaTarget(0.3).restart();
   d.fx = d.x;
   d.fy = d.y;
 }

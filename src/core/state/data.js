@@ -1,4 +1,6 @@
 import { createContext, useState } from 'react';
+import doiRegex from 'doi-regex';
+import doi from 'doi-regex';
 
 const initialState = {
   Papers: {},
@@ -34,16 +36,20 @@ function makeSeed(id, state) {
   if (paper.references) {
     paper.references.forEach(ref => {
       ref = addPaper(ref, Papers);
-      let edge = { source: paper.ID, target: ref.ID };
-      addEdge(edge, Edges);
+      if (ref) {
+        let edge = { source: paper.ID, target: ref.ID };
+        addEdge(edge, Edges);
+      }
     });
     Papers = updateMetrics(Papers, Edges);
   }
   if (paper.citations) {
     paper.citations.forEach(ref => {
       ref = addPaper(ref, Papers);
-      let edge = { source: ref.ID, target: paper.ID };
-      addEdge(edge, Edges);
+      if (ref) {
+        let edge = { source: ref.ID, target: paper.ID };
+        addEdge(edge, Edges);
+      }
     });
     Papers = updateMetrics(Papers, Edges);
   }
@@ -65,21 +71,25 @@ function updatePapers(papers, seeds, state) {
     paper.seed = paper.seed || seeds || false;
     // For each reference / citedBy match and merge then match / merge edges
     paper = addPaper(paper, Papers);
-    if (paper.seed) {
+    if (paper && paper.seed) {
       // Add references and citations.
       if (paper.references) {
         paper.references.forEach(ref => {
           ref = addPaper(ref, Papers);
-          let edge = { source: paper.ID, target: ref.ID };
-          addEdge(edge, Edges);
+          if (ref) {
+            let edge = { source: paper.ID, target: ref.ID };
+            addEdge(edge, Edges);
+          }
         });
         Papers = updateMetrics(Papers, Edges);
       }
       if (paper.citations) {
         paper.citations.forEach(ref => {
           ref = addPaper(ref, Papers);
-          let edge = { source: ref.ID, target: paper.ID };
-          addEdge(edge, Edges);
+          if (ref) {
+            let edge = { source: ref.ID, target: paper.ID };
+            addEdge(edge, Edges);
+          }
         });
         Papers = updateMetrics(Papers, Edges);
       }
@@ -91,7 +101,7 @@ function updatePapers(papers, seeds, state) {
 //For a new paper this function tries to find a match in the existing database
 export function matchPaper(paper, Papers) {
   Papers = Object.values(Papers);
-  var match;
+  var match = null;
   if (paper.microsoftID) {
     match = Papers.filter(function(p) {
       return p.microsoftID === paper.microsoftID;
@@ -109,6 +119,15 @@ export function matchPaper(paper, Papers) {
           p.title.toLowerCase() === paper.title.toLowerCase() &&
           paper.author.toLowerCase() === (p.author ? p.author.toLowerCase() : null)
         );
+      }
+      return null;
+    })[0];
+  }
+  // Match anything that is still unstructured
+  if (!match && paper.unstructured) {
+    match = Papers.filter(function(p) {
+      if (p.unstructured) {
+        return p.unstructured.toLowerCase() === paper.unstructured.toLowerCase();
       }
       return null;
     })[0];
@@ -140,8 +159,30 @@ export function addPaper(paper, Papers) {
   } else {
     paper = merge(match, paper);
   }
-  Papers[paper.ID] = paper;
-  return paper;
+  if (!paper.year && paper.unstructured) {
+    paper = parseUnstructuredPaper(paper);
+  }
+  // Discard entries without a DOI
+  if (doiRegex({ exact: true }).test(paper.doi)) {
+    // Ensure that all years are numeric
+    paper.year = parseInt(paper.year, 10);
+
+    // Add the paper to the database
+    Papers[paper.ID] = paper;
+    return paper;
+  }
+  // If the paper doesn't have a DOI, return null
+  return null;
+}
+
+// Function to parse the unstructured section of a paper
+// looking (for  now) for something that looks like a year
+export function parseUnstructuredPaper(paper) {
+  let year = paper.unstructured.match(/\d{4}/);
+  return {
+    ...paper,
+    year: year ? year[0] : null
+  };
 }
 
 export function addEdge(edge, Edges) {

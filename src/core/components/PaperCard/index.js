@@ -8,6 +8,7 @@ const PaperCard = ({ paper, onClick, selected, actions, rightFloat }) => (
     onClick={onClick}
   >
     <div className={styles['paper-title']}>
+      <div>{`Paper ID ${paper.ID}`}</div>
       {paper.title || paper.doi || paper.unstructured}
       {paper.doi && (
         <a
@@ -20,12 +21,21 @@ const PaperCard = ({ paper, onClick, selected, actions, rightFloat }) => (
         </a>
       )}
     </div>
-    {paper.author ||
-      (paper.year && (
-        <div className={styles['author-year']}>{`${paper.author} ${paper.year}`}</div>
+    {paper.author &&
+      (paper.year ? (
+        <div className={styles['author-year']}>{`${paper.author} (${paper.year})`}</div>
+      ) : (
+        <div className={styles['author-year']}>{`${paper.author} (Unknown year)`}</div>
       ))}
     <div className={styles['float-right']}>{rightFloat}</div>
-    {paper.journal && <div className={styles['journal']}>{paper.journal}</div>}
+    {paper.journal &&
+      (paper.citationCount ? (
+        <div
+          className={styles['journal']}
+        >{`${paper.journal} - Cited by ${paper.citationCount}`}</div>
+      ) : (
+        <div className={styles['journal']}>{paper.journal}</div>
+      ))}
     {selected && actions}
   </div>
 );

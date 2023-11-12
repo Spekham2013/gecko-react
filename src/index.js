@@ -5,8 +5,6 @@ import App from './core';
 import 'data-modules';
 import 'import-modules';
 import 'export-modules';
-import LogRocket from 'logrocket';
-LogRocket.init('h9ucfk/citation-gecko');
 
 ReactDOM.render(<App />, document.getElementById('root'));
 //ServiceWorker.register();

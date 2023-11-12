@@ -31,10 +31,15 @@ const ZoteroSearch = () => {
   const [activeCollection, setActiveCollection] = useState(false);
   const { updatePapers } = useContext(Store);
 
-  getCollections().then(setCollections);
+  console.log('Get Zotero collections');
+  if (collections.length === 0) {
+    console.log('Get Zotero collections');
+    getCollections().then(setCollections);
+  }
 
   const addSeeds = () => {
     const selectedPapers = papers.filter((p, i) => selected[i]);
+    console.log('selectedPapers', selectedPapers);
     updatePapers(selectedPapers, true);
   };
 
