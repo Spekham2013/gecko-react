@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:24
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 # Install app dependencies
 COPY package*.json ./
 
-RUN yarn install
+RUN corepack enable
 
 # Bundle app source
 COPY src ./src
