@@ -78,20 +78,7 @@ choosePort(HOST, DEFAULT_PORT)
     const devServer = new WebpackDevServer(compiler, serverConfig);
 
     let credentials = {};
-    // If LOCAL_CREDENTIALS_FILE is set, create credentials object that can be used
-    // to populate credential cookies
-    
-    let default_credentials_file = path.join(path.dirname(__dirname), '.cache', 'credentials.yml');
-    
-    if (process.env.LOCAL_CREDENTIALS_FILE || require('fs').existsSync(default_credentials_file)) {
-      let credentials_file = process.env.LOCAL_CREDENTIALS_FILE || default_credentials_file;
-    
-      // Load the local credentials file as YAML
-      console.log('Loading credentials from ' + credentials_file);
-      credentials = require('js-yaml').load(
-        require('fs').readFileSync(credentials_file, 'utf8')
-      );
-    }
+    credentials.zotero_api_key = process.env.API_KEY_ZOTERO;
 
     devServer.app.use(function (req, res, next) {
       console.log("Checking for cookie 2")

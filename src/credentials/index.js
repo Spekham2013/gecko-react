@@ -16,9 +16,10 @@ export function getZoteroApiKey() {
     throw new Error('No Zotero API key found.');
   }
 
-  // Look in the local credentials cache yaml file
-  // Read the credentials yaml
-  let credentials = yaml.load(fs.readFileSync('.cache/credentials.yaml', 'utf8'));
+  // Read the api key from the enviroment
+  let credentials = {};
+  credentials.zotero_api_key = process.env.API_KEY_ZOTERO;
+
   if (credentials.zotero_api_key) {
     return credentials.zotero_api_key;
   }

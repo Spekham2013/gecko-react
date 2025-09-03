@@ -18,20 +18,9 @@ const app = express();
 app.use(session(sessionOpts));
 app.use(cookieParser());
 
-let default_credentials_file = path.join(path.dirname(__dirname), '.cache', 'credentials.yml');
-
+// console.log("Current API key: " + process.env.API_KEY_ZOTERO)
 let credentials = {};
-// If LOCAL_CREDENTIALS_FILE is set, create credentials object that can be used
-// to populate credential cookies
-
-console.log("default_credentials_file: " + default_credentials_file);
-if (process.env.LOCAL_CREDENTIALS_FILE || fs.existsSync(default_credentials_file)) {
-    let credentials_file = process.env.LOCAL_CREDENTIALS_FILE || default_credentials_file;
-
-  // Load the local credentials file as YAML
-  console.log('Loading credentials from ' + credentials_file);
-  credentials = require('js-yaml').load(fs.readFileSync(credentials_file, 'utf8'));
-}
+credentials.zotero_api_key = process.env.API_KEY_ZOTERO;
 
 app.use(function(req, res, next) {
   // check if client sent cookie

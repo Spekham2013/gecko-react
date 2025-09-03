@@ -20,8 +20,11 @@ COPY .eslintrc ./.eslintrc
 COPY .prettierrc ./.prettierrc
 COPY .eslintignore ./.eslintignore
 
-COPY .cache ./.cache
+ENV API_KEY_ZOTERO=""
+
+RUN yarn
+RUN yarn run build
 
 EXPOSE 8000
 
-CMD [ "npm", "start-local" ]
+CMD [ "yarn", "start-local" ]
